@@ -48,11 +48,9 @@ import androidx.core.content.ContextCompat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
 import androidx.camera.core.ImageAnalysis
+import androidx.fragment.app.FragmentTransaction
 
-
-
-
-class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, ActivityCompat.OnRequestPermissionsResultCallback {
+class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSelectedListener*/ {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -61,10 +59,6 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
 
     internal var adapter: ExpandableListAdapter? = null
     internal var titleList: List<String>? = null
-
-    private var qrCodeFoundButton: Button? = null
-    private var qrCode: String? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,120 +105,13 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
         toggle.syncState()
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
-
-        previewView = findViewById(R.id.activity_main_previewView);
-
-        qrCodeFoundButton = findViewById<View>(R.id.activity_main_qrCodeFoundButton) as Button?
-        qrCodeFoundButton!!.setVisibility(View.INVISIBLE)
-        qrCodeFoundButton!!.setOnClickListener(View.OnClickListener {
-            Toast.makeText(applicationContext, qrCode, Toast.LENGTH_SHORT).show()
-            Log.i(MainActivity::class.java.simpleName, "QR Code Found: $qrCode")
-        })
-        cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-        requestCamera();
-    }
-
-    private val PERMISSION_REQUEST_CAMERA = 0
-
-    private fun requestCamera() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            startCamera()
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.CAMERA
-                )
-            ) {
-                ActivityCompat.requestPermissions(
-                    this@MainActivity,
-                    arrayOf(Manifest.permission.CAMERA),
-                    PERMISSION_REQUEST_CAMERA
-                )
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.CAMERA),
-                    PERMISSION_REQUEST_CAMERA
-                )
-            }
-        }
-    }
-    private var previewView: PreviewView? = null
-    private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
-
-    private fun bindCameraPreview(cameraProvider: ProcessCameraProvider) {
-        previewView!!.preferredImplementationMode = PreviewView.ImplementationMode.SURFACE_VIEW
-        val preview = Preview.Builder()
-            .build()
-        val cameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
-        preview.setSurfaceProvider(previewView!!.createSurfaceProvider())
-        val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetResolution(Size(1280, 720))
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .build()
-        imageAnalysis.setAnalyzer(
-            ContextCompat.getMainExecutor(this),
-            QRCodeImageAnalyzer(object : QRCodeFoundListener {
-                override fun onQRCodeFound(_qrCode: String?) {
-                    qrCode = _qrCode
-                    qrCodeFoundButton!!.setVisibility(View.VISIBLE)
-                }
-
-                override fun qrCodeNotFound() {
-                    qrCodeFoundButton!!.setVisibility(View.INVISIBLE)
-                }
-            })
-        )
-        val camera = cameraProvider.bindToLifecycle(
-            (this as LifecycleOwner),
-            cameraSelector,
-            imageAnalysis,
-            preview
-        )
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CAMERA) {
-            if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startCamera()
-            } else {
-                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun startCamera() {
-        cameraProviderFuture!!.addListener({
-            try {
-                val cameraProvider = cameraProviderFuture!!.get()
-                bindCameraPreview(cameraProvider)
-            } catch (e: ExecutionException) {
-                Toast.makeText(this, "Error starting camera " + e.message, Toast.LENGTH_SHORT)
-                    .show()
-            } catch (e: InterruptedException) {
-                Toast.makeText(this, "Error starting camera " + e.message, Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }, ContextCompat.getMainExecutor(this))
+        //navigationView.setNavigationItemSelectedListener(this)
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
-
 
     // NEW STUFF
 
@@ -253,7 +140,7 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
         } else super.onOptionsItemSelected(item)
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+    /*override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         val id: Int = item.getItemId()
         if (id == R.id.nav_gallery) {
@@ -262,7 +149,7 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         drawer.closeDrawer(GravityCompat.START)
         return true
-    }
+    }*/
 
     val data: HashMap<String, List<String>>
         get() {

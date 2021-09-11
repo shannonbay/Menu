@@ -27,19 +27,13 @@ import androidx.appcompat.widget.Toolbar
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-import android.webkit.WebView
-import android.widget.ExpandableListView.OnChildClickListener
-import android.widget.ExpandableListView.OnGroupClickListener
-
-
 class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    var expandableListAdapter: ExpandableListAdapter? = null
+
     internal var expandableListView: ExpandableListView? = null
-    var headerList: MutableList<MenuModel> = ArrayList()
-    var childList: HashMap<MenuModel, MutableList<MenuModel>> = HashMap()
+
     internal var adapter: ExpandableListAdapter? = null
     internal var titleList: List<String>? = null
 
@@ -78,7 +72,6 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
                 .setAction("Action", null).show()
         }
 
-        prepareMenuData()
         populateExpandableList()
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -135,67 +128,6 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
         drawer.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun prepareMenuData() {
-        var menuModel = MenuModel(
-            "Android WebView Tutorial",
-            true,
-            false,
-            "https://www.journaldev.com/9333/android-webview-example-tutorial"
-        ) //Menu of Android Tutorial. No sub menus
-        headerList.add(menuModel)
-        if (!menuModel.hasChildren) {
-            childList[menuModel] = mutableListOf()
-        }
-        menuModel = MenuModel("Java Tutorials", true, true, "") //Menu of Java Tutorials
-        headerList.add(menuModel)
-        var childModelsList: MutableList<MenuModel> = ArrayList<MenuModel>()
-        var childModel: MenuModel = MenuModel(
-            "Core Java Tutorial",
-            false,
-            false,
-            "https://www.journaldev.com/7153/core-java-tutorial"
-        )
-        childModelsList.add(childModel)
-        childModel = MenuModel(
-            "Java FileInputStream",
-            false,
-            false,
-            "https://www.journaldev.com/19187/java-fileinputstream"
-        )
-        childModelsList.add(childModel)
-        childModel = MenuModel(
-            "Java FileReader",
-            false,
-            false,
-            "https://www.journaldev.com/19115/java-filereader"
-        )
-        childModelsList.add(childModel)
-        if (menuModel.hasChildren) {
-            val d = Log.d("API123", "here")
-            childList[menuModel] = childModelsList
-        }
-        childModelsList = ArrayList()
-        menuModel = MenuModel("Python Tutorials", true, true, "") //Menu of Python Tutorials
-        headerList.add(menuModel)
-        childModel = MenuModel(
-            "Python AST – Abstract Syntax Tree",
-            false,
-            false,
-            "https://www.journaldev.com/19243/python-ast-abstract-syntax-tree"
-        )
-        childModelsList.add(childModel)
-        childModel = MenuModel(
-            "Python Fractions",
-            false,
-            false,
-            "https://www.journaldev.com/19226/python-fractions"
-        )
-        childModelsList.add(childModel)
-        if (menuModel.hasChildren) {
-            childList[menuModel] = childModelsList
-        }
     }
 
     val data: HashMap<String, List<String>>

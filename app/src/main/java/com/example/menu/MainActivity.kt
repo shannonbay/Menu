@@ -28,6 +28,8 @@ import androidx.appcompat.widget.Toolbar
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.content.pm.PackageManager
+import android.util.Size
+import android.widget.Button
 
 import androidx.annotation.NonNull
 import androidx.camera.core.Camera
@@ -45,6 +47,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
+import androidx.camera.core.ImageAnalysis
+
+
 
 
 class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -56,6 +61,10 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
 
     internal var adapter: ExpandableListAdapter? = null
     internal var titleList: List<String>? = null
+
+    private var qrCodeFoundButton: Button? = null
+    private var qrCode: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,6 +114,13 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
         navigationView.setNavigationItemSelectedListener(this)
 
         previewView = findViewById(R.id.activity_main_previewView);
+
+        qrCodeFoundButton = findViewById<View>(R.id.activity_main_qrCodeFoundButton) as Button?
+        qrCodeFoundButton!!.setVisibility(View.INVISIBLE)
+        qrCodeFoundButton!!.setOnClickListener(View.OnClickListener {
+            Toast.makeText(applicationContext, qrCode, Toast.LENGTH_SHORT).show()
+            Log.i(MainActivity::class.java.simpleName, "QR Code Found: $qrCode")
+        })
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         requestCamera();
     }
@@ -141,31 +157,37 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
     private var previewView: PreviewView? = null
     private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
 
-    private fun startCamera() {
-        cameraProviderFuture?.addListener({
-            try {
-                val cameraProvider: ProcessCameraProvider = cameraProviderFuture!!.get()
-                bindCameraPreview(cameraProvider)
-            } catch (e: ExecutionException) {
-                Toast.makeText(this, "Error starting camera " + e.localizedMessage, Toast.LENGTH_SHORT)
-                    .show()
-            } catch (e: InterruptedException) {
-                Toast.makeText(this, "Error starting camera " + e.localizedMessage, Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }, ContextCompat.getMainExecutor(this))
-    }
-
     private fun bindCameraPreview(cameraProvider: ProcessCameraProvider) {
-        previewView?.setPreferredImplementationMode(PreviewView.ImplementationMode.SURFACE_VIEW)
-        val preview: Preview = androidx.camera.core.Preview.Builder()
+        previewView!!.preferredImplementationMode = PreviewView.ImplementationMode.SURFACE_VIEW
+        val preview = Preview.Builder()
             .build()
         val cameraSelector = CameraSelector.Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_BACK)
             .build()
         preview.setSurfaceProvider(previewView!!.createSurfaceProvider())
-        val camera: Camera =
-            cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, preview)
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setTargetResolution(Size(1280, 720))
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+        imageAnalysis.setAnalyzer(
+            ContextCompat.getMainExecutor(this),
+            QRCodeImageAnalyzer(object : QRCodeFoundListener {
+                override fun onQRCodeFound(_qrCode: String?) {
+                    qrCode = _qrCode
+                    qrCodeFoundButton!!.setVisibility(View.VISIBLE)
+                }
+
+                override fun qrCodeNotFound() {
+                    qrCodeFoundButton!!.setVisibility(View.INVISIBLE)
+                }
+            })
+        )
+        val camera = cameraProvider.bindToLifecycle(
+            (this as LifecycleOwner),
+            cameraSelector,
+            imageAnalysis,
+            preview
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -181,6 +203,21 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
                 Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun startCamera() {
+        cameraProviderFuture!!.addListener({
+            try {
+                val cameraProvider = cameraProviderFuture!!.get()
+                bindCameraPreview(cameraProvider)
+            } catch (e: ExecutionException) {
+                Toast.makeText(this, "Error starting camera " + e.message, Toast.LENGTH_SHORT)
+                    .show()
+            } catch (e: InterruptedException) {
+                Toast.makeText(this, "Error starting camera " + e.message, Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }, ContextCompat.getMainExecutor(this))
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -1,4 +1,4 @@
-package com.example.menu.ui.gallery
+package com.example.menu.ui.qr
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -8,7 +8,6 @@ import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
@@ -22,20 +21,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.menu.MainActivity
 import com.example.menu.QRCodeFoundListener
 import com.example.menu.QRCodeImageAnalyzer
-import com.example.menu.databinding.FragmentGalleryBinding
+import com.example.menu.R
+import com.example.menu.databinding.FragmentQrBinding
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.android.synthetic.main.camera_preview.*
 import kotlinx.android.synthetic.main.camera_preview.view.*
+import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutionException
-import kotlinx.android.synthetic.main.fragment_gallery.*
 
-class GalleryFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
+class QRFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private lateinit var galleryViewModel: GalleryViewModel
-    private var _binding: FragmentGalleryBinding? = null
+    private var _binding: FragmentQrBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -46,22 +46,11 @@ class GalleryFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        galleryViewModel =
-            ViewModelProvider(this).get(GalleryViewModel::class.java)
 
-        _binding = FragmentGalleryBinding.inflate(inflater, container, false)
+
+        _binding = FragmentQrBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textGallery
-        galleryViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-
-        root.activity_main_qrCodeFoundButton.setVisibility(View.INVISIBLE)
-        root.activity_main_qrCodeFoundButton.setOnClickListener(View.OnClickListener {
-            Toast.makeText(requireContext(), qrCode, Toast.LENGTH_SHORT).show()
-            Log.i(MainActivity::class.java.simpleName, "QR Code Found: $qrCode")
-        })
         cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
         requestCamera();
 
@@ -115,11 +104,25 @@ class GalleryFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
             QRCodeImageAnalyzer(object : QRCodeFoundListener {
                 override fun onQRCodeFound(_qrCode: String?) {
                     qrCode = _qrCode
-                    activity_main_qrCodeFoundButton.setVisibility(View.VISIBLE)
+                    if(System.currentTimeMillis() - 2000 < scanTime) return;
+                    scanTime = System.currentTimeMillis()
+                    if ("Southern Cross Wellington Room 108".equals(_qrCode)) {
+                        Toast.makeText(requireContext(), qrCode, Toast.LENGTH_SHORT).show()
+                        Log.i(MainActivity::class.java.simpleName, "QR Code Found: $qrCode")
+                        try {
+                            //TODO provide proper API instead of using Exceptions as Control-Flow.
+                            findNavController().navigate(R.id.nav_home)
+
+                        } catch (e: IllegalArgumentException) {
+
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), qrCode, Toast.LENGTH_SHORT).show()
+                        Log.i(MainActivity::class.java.simpleName, "Unknown QR Code: $qrCode")
+                    }
                 }
 
                 override fun qrCodeNotFound() {
-                    activity_main_qrCodeFoundButton.setVisibility(View.INVISIBLE)
                 }
             })
         )
@@ -130,6 +133,8 @@ class GalleryFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCal
             preview
         )
     }
+
+    var scanTime: Long = 0L
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

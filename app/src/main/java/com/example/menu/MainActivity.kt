@@ -1,8 +1,6 @@
 package com.example.menu
 
-import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -27,28 +25,6 @@ import androidx.core.view.GravityCompat
 import androidx.appcompat.widget.Toolbar
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import android.content.pm.PackageManager
-import android.util.Size
-import android.widget.Button
-
-import androidx.annotation.NonNull
-import androidx.camera.core.Camera
-
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.LifecycleOwner
-
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-
-import androidx.camera.view.PreviewView
-
-import androidx.camera.lifecycle.ProcessCameraProvider
-
-import androidx.core.content.ContextCompat
-import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.ExecutionException
-import androidx.camera.core.ImageAnalysis
-import androidx.fragment.app.FragmentTransaction
 
 class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSelectedListener*/ {
 
@@ -79,7 +55,7 @@ class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSel
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_qr, R.id.nav_slideshow
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -143,7 +119,7 @@ class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSel
     /*override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         val id: Int = item.getItemId()
-        if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_qr) {
         } else if (id == R.id.nav_slideshow) {
         }
         val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout

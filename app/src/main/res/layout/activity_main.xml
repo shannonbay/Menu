@@ -23,15 +23,20 @@
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer">
 
-    <ExpandableListView
-        android:id="@+id/expandableListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:dividerHeight="0.5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ExpandableListView
+                android:id="@+id/expandableListView"
+                android:layout_width="match_parent"
+                android:layout_height="561dp"
+                android:dividerHeight="0.5dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="0dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </com.google.android.material.navigation.NavigationView>
 
 

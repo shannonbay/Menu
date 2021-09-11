@@ -1,8 +1,6 @@
 package com.example.menu
 
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import android.view.Menu
 import android.view.View
@@ -22,9 +20,6 @@ import android.widget.ExpandableListView
 import android.widget.ExpandableListAdapter
 import android.view.MenuItem
 
-import android.webkit.WebView
-import android.widget.ExpandableListView.OnChildClickListener
-import android.widget.ExpandableListView.OnGroupClickListener
 import android.widget.Toast
 
 import androidx.core.view.GravityCompat
@@ -32,7 +27,9 @@ import androidx.appcompat.widget.Toolbar
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-
+import android.webkit.WebView
+import android.widget.ExpandableListView.OnChildClickListener
+import android.widget.ExpandableListView.OnGroupClickListener
 
 
 class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -45,10 +42,6 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
     var childList: HashMap<MenuModel, MutableList<MenuModel>> = HashMap()
     internal var adapter: ExpandableListAdapter? = null
     internal var titleList: List<String>? = null
-
-    constructor(parcel: Parcel) : this() {
-
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -209,43 +202,14 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
         get() {
             val listData = HashMap<String, List<String>>()
 
-            val redmiMobiles = ArrayList<String>()
-            redmiMobiles.add("Redmi Y2")
-            redmiMobiles.add("Redmi S2")
-            redmiMobiles.add("Redmi Note 5 Pro")
-            redmiMobiles.add("Redmi Note 5")
-            redmiMobiles.add("Redmi 5 Plus")
-            redmiMobiles.add("Redmi Y1")
-            redmiMobiles.add("Redmi 3S Plus")
-
-            val micromaxMobiles = ArrayList<String>()
-            micromaxMobiles.add("Micromax Bharat Go")
-            micromaxMobiles.add("Micromax Bharat 5 Pro")
-            micromaxMobiles.add("Micromax Bharat 5")
-            micromaxMobiles.add("Micromax Canvas 1")
-            micromaxMobiles.add("Micromax Dual 5")
-
-            val appleMobiles = ArrayList<String>()
-            appleMobiles.add("iPhone 8")
-            appleMobiles.add("iPhone 8 Plus")
-            appleMobiles.add("iPhone X")
-            appleMobiles.add("iPhone 7 Plus")
-            appleMobiles.add("iPhone 7")
-            appleMobiles.add("iPhone 6 Plus")
-
-            val samsungMobiles = ArrayList<String>()
-            samsungMobiles.add("Samsung Galaxy S9+")
-            samsungMobiles.add("Samsung Galaxy Note 7")
-            samsungMobiles.add("Samsung Galaxy Note 5 Dual")
-            samsungMobiles.add("Samsung Galaxy S8")
-            samsungMobiles.add("Samsung Galaxy A8")
-            samsungMobiles.add("Samsung Galaxy Note 4")
+            val meals = ArrayList<String>()
+            meals.add("Breakfast")
+            meals.add("Lunch")
+            meals.add("Dinner")
 
             // set multiple list to header title position
-            listData["Redmi"] = redmiMobiles
-            listData["Micromax"] = micromaxMobiles
-            listData["Apple"] = appleMobiles
-            listData["Samsung"] = samsungMobiles
+            listData["Today"] = meals
+            listData["Tomorrow"] = meals
 
             return listData
         }
@@ -283,29 +247,26 @@ class MainActivity() : AppCompatActivity(), NavigationView.OnNavigationItemSelec
                     Toast.LENGTH_SHORT
                 ).show()
                 // For get child position
-                // Toast.makeText(applicationContext, groupPosition.toString(), Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, groupPosition.toString(), Toast.LENGTH_SHORT).show()
                 false
             }
 
             expandableListView!!.setOnGroupClickListener { parent, v, groupPosition, id ->
-                if (headerList[groupPosition]?.isGroup != null) {
-                    if (!headerList[groupPosition]?.hasChildren) {
-                        /*val webView = findViewById<WebView>(R.id.webView)
-                    webView.loadUrl(headerList[groupPosition].url)*/
-                        onBackPressed()
-                    }
-                }
+                Toast.makeText(
+                    applicationContext,
+                    "Clicked: " + (titleList as ArrayList<String>)[groupPosition],
+                    Toast.LENGTH_SHORT
+                ).show()
                 false
             }
             expandableListView!!.setOnChildClickListener { parent, v, groupPosition, childPosition, id ->
-                if (childList[headerList[groupPosition]] != null) {
-                    val model: MenuModel = childList[headerList[groupPosition]]!![childPosition]
-                    if (model.url.length > 0) {
-                        /*val webView = findViewById<WebView>(R.id.webView)
-                    webView.loadUrl(model.url)*/
-                        onBackPressed()
-                    }
-                }
+                Toast.makeText(
+                    applicationContext,
+                    "Clicked: " + (titleList as ArrayList<String>)[groupPosition] + " -> " + listData[(titleList as ArrayList<String>)[groupPosition]]!!.get(
+                        childPosition
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
                 false
             }
         }

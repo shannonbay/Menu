@@ -1,17 +1,20 @@
 package com.example.menu.ui.home
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.menu.R
+import com.example.menu.data.SecurePreferences
 import com.example.menu.databinding.FragmentHomeBinding
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), SecurePreferences {
 
     private lateinit var homeViewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
@@ -33,8 +36,14 @@ class HomeFragment : Fragment() {
 
         val textView: TextView = binding.textHome
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+            val roomId = securePreferences().getString("room_id", null)
+            val welcomeString = "Welcome to " + (roomId?:  " Southern Cross Hospitals!%nPlease scan your Patient Room QR Code")
+            binding.textHome.text = welcomeString
         })
+
+        _binding!!.textHome.text = "TEST"
+        textView.text = "TEST"
+        textView.refreshDrawableState();
         return root
     }
 
@@ -42,4 +51,6 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override var sharedPreferences: SharedPreferences? = null
 }

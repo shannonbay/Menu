@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.menu.databinding.ActivityMainBinding
 import android.widget.ExpandableListView
+import androidx.security.crypto.EncryptedSharedPreferences
 
 import android.widget.ExpandableListAdapter
 import android.view.MenuItem
@@ -25,6 +26,10 @@ import androidx.core.view.GravityCompat
 import androidx.appcompat.widget.Toolbar
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.content.SharedPreferences
+import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKeys
+
 
 class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSelectedListener*/ {
 
@@ -35,6 +40,7 @@ class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSel
 
     internal var adapter: ExpandableListAdapter? = null
     internal var titleList: List<String>? = null
+    internal var sharedPreferences: SharedPreferences ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +67,6 @@ class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSel
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -82,6 +87,22 @@ class MainActivity() : AppCompatActivity()/*, NavigationView.OnNavigationItemSel
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         //navigationView.setNavigationItemSelectedListener(this)
+    }
+
+    private fun sharedPreferences(): SharedPreferences {
+        val masterKeyAlias: MasterKey = MasterKey.Builder(applicationContext).build()
+
+        if (sharedPreferences == null){
+            sharedPreferences = EncryptedSharedPreferences.create(
+                applicationContext,
+                "secret_shared_prefs",
+                masterKeyAlias,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
+
+        return sharedPreferences as SharedPreferences
     }
 
     override fun onSupportNavigateUp(): Boolean {

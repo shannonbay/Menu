@@ -1,6 +1,7 @@
 package com.example.menu.ui.qr
 
 import android.Manifest
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,6 +28,7 @@ import com.example.menu.MainActivity
 import com.example.menu.QRCodeFoundListener
 import com.example.menu.QRCodeImageAnalyzer
 import com.example.menu.R
+import com.example.menu.data.SecurePreferences
 import com.example.menu.databinding.FragmentQrBinding
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.android.synthetic.main.camera_preview.*
@@ -33,7 +36,7 @@ import kotlinx.android.synthetic.main.camera_preview.view.*
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutionException
 
-class QRFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
+class QRFragment: Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, SecurePreferences {
 
     private var _binding: FragmentQrBinding? = null
 
@@ -46,8 +49,6 @@ class QRFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-
         _binding = FragmentQrBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -109,10 +110,13 @@ class QRFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback
                     if ("Southern Cross Wellington Room 108".equals(_qrCode)) {
                         Toast.makeText(requireContext(), qrCode, Toast.LENGTH_SHORT).show()
                         Log.i(MainActivity::class.java.simpleName, "QR Code Found: $qrCode")
+                        securePreferences()
+                            .edit()
+                            .putString("room_id", qrCode)
+                            .apply()
                         try {
                             //TODO provide proper API instead of using Exceptions as Control-Flow.
                             findNavController().navigate(R.id.nav_home)
-
                         } catch (e: IllegalArgumentException) {
 
                         }
@@ -170,4 +174,6 @@ class QRFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback
         super.onDestroyView()
         _binding = null
     }
+
+    override var sharedPreferences: SharedPreferences? = null
 }

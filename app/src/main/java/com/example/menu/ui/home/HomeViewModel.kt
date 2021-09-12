@@ -1,13 +1,16 @@
 package com.example.menu.ui.home
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.menu.data.SecurePreferences
 
 class HomeViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+        value = "Welcome to Unknown Room"
     }
-    val text: LiveData<String> = _text
+    public var text: LiveData<String> = _text
 }

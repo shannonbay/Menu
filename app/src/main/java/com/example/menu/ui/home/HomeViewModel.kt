@@ -10,7 +10,7 @@ import com.example.menu.data.SecurePreferences
 class HomeViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "Welcome to Unknown Room"
+        value = "Welcome to Southern Cross Wellington Hospital!\nPlease scan your Patient Room QR to begin"
     }
     public var text: LiveData<String> = _text
 }

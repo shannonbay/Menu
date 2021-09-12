@@ -8,9 +8,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/tawa"
+        android:icon="@mipmap/sch"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/tawa_round"
+        android:roundIcon="@mipmap/sch_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Menu">
         <activity
